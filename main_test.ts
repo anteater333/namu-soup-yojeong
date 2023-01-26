@@ -1,18 +1,31 @@
 import {
+  assertArrayIncludes,
   assertEquals,
   assertInstanceOf,
 } from "https://deno.land/std@0.172.0/testing/asserts.ts";
-import { getNamuRanking, saveNamuRanking } from "./main.ts";
+import { getNamuTrending, saveNamuTrending, getSavedTrending } from "./main.ts";
 
-Deno.test(async function 랭킹은_길이가_10인_배열() {
-  const namuRanking = await getNamuRanking();
-  assertInstanceOf(namuRanking, Array);
+Deno.test(async function 랭킹은_길이가_10인_문자열_배열이다() {
+  const namuTrending = await getNamuTrending();
 
-  assertEquals(namuRanking.length, 10);
+  assertInstanceOf(namuTrending, Array<string>);
+
+  assertEquals(namuTrending.length, 10);
 });
 
 Deno.test(async function 랭킹을_서버에_저장하면_201_코드를_받는다() {
-  const expectedResult = 201;
+  const expectedResultCode = 201;
 
-  assertEquals((await saveNamuRanking()).resultCode, expectedResult);
+  assertEquals((await saveNamuTrending()).resultCode, expectedResultCode);
+});
+
+Deno.test(async function 서버에_저장된_랭킹도_길이가_10인_배열이다() {
+  const { resultCode, savedTrending } = await getSavedTrending();
+  const expectedResultCode = 200;
+
+  assertEquals(resultCode, expectedResultCode);
+
+  assertInstanceOf(savedTrending, Array);
+
+  assertEquals(savedTrending.length, 10);
 });
