@@ -1,4 +1,8 @@
-export async function getNamuRanking() {
+import { dotEnvConfig } from "./deps.ts";
+
+dotEnvConfig({ export: true });
+
+export async function getNamuTrending(): Promise<Array<string>> {
   const result = await fetch("https://search.namu.wiki/api/ranking", {
     credentials: "omit",
     headers: {
@@ -19,7 +23,38 @@ export async function getNamuRanking() {
   return await result.json();
 }
 
-// Learn more at https://deno.land/manual/examples/module_metadata#concepts
-if (import.meta.main) {
-  console.log("Add 2 + 3 =", add(2, 3));
+export async function saveNamuTrending() {
+  const newNamuTrendingData = {
+    trendings: await getNamuTrending(),
+    pwd: Deno.env.get("AGENT_SECRET"),
+  };
+  const result = await fetch("http://localhost:8080/api", {
+    method: "PUT",
+    cache: "no-cache",
+    mode: "cors",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(newNamuTrendingData),
+  });
+
+  await result.body?.cancel();
+
+  return { resultCode: result.status };
+}
+
+export async function getSavedTrending() {
+  const result = await fetch("http://localhost:8080/api", {
+    method: "GET",
+    cache: "no-cache",
+    mode: "cors",
+  });
+
+  const resultBody = await result.json();
+
+  return {
+    resultCode: result.status,
+    savedTrending: result.status === 200 ? resultBody[0] : undefined,
+    savedDate: result.status === 200 ? resultBody[1] : undefined,
+  };
 }
