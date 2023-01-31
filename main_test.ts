@@ -2,7 +2,7 @@ import {
   assertEquals,
   assertInstanceOf,
   assertNotEquals,
-} from "https://deno.land/std@0.172.0/testing/asserts.ts";
+} from "./deps/asserts.ts";
 import { getNamuTrending, saveNamuTrending, getSavedTrending } from "./main.ts";
 
 Deno.test(async function 랭킹은_길이가_10인_문자열_배열이다() {

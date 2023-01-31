@@ -1,4 +1,4 @@
-import { dotEnvConfig } from "./deps.ts";
+import { dotEnvConfig } from "./deps/default.ts";
 
 dotEnvConfig({ export: true });
 
