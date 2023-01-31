@@ -2,8 +2,14 @@ import { dotEnvConfig } from "./deps.ts";
 
 dotEnvConfig({ export: true });
 
-export async function getNamuTrending(): Promise<Array<string>> {
-  const result = await fetch("https://search.namu.wiki/api/ranking", {
+const NAMU_API = "https://search.namu.wiki/api/ranking";
+const SOUP_API = "http://localhost:8080/api";
+
+export async function getNamuTrending(): Promise<{
+  namuTrending: Array<string>;
+  resultCode: number;
+}> {
+  const result = await fetch(NAMU_API, {
     credentials: "omit",
     headers: {
       "User-Agent":
@@ -20,15 +26,18 @@ export async function getNamuTrending(): Promise<Array<string>> {
     mode: "cors",
   });
 
-  return await result.json();
+  return {
+    namuTrending: result.status === 200 ? await result.json() : undefined,
+    resultCode: result.status,
+  };
 }
 
-export async function saveNamuTrending() {
+export async function saveNamuTrending(trending: Array<string>) {
   const newNamuTrendingData = {
-    trendings: await getNamuTrending(),
+    trendings: trending,
     pwd: Deno.env.get("AGENT_SECRET"),
   };
-  const result = await fetch("http://localhost:8080/api", {
+  const result = await fetch(SOUP_API, {
     method: "PUT",
     cache: "no-cache",
     mode: "cors",
@@ -44,7 +53,7 @@ export async function saveNamuTrending() {
 }
 
 export async function getSavedTrending() {
-  const result = await fetch("http://localhost:8080/api", {
+  const result = await fetch(SOUP_API, {
     method: "GET",
     cache: "no-cache",
     mode: "cors",
@@ -57,4 +66,65 @@ export async function getSavedTrending() {
     savedTrending: result.status === 200 ? resultBody[0] : undefined,
     savedDate: result.status === 200 ? resultBody[1] : undefined,
   };
+}
+
+export async function operationSoupYojeong() {
+  console.log(`Hello, this is agent soup-yojeong operating. >:)\n`);
+  try {
+    console.log(`1. Crawling namu trendings from ${NAMU_API}`);
+    const { namuTrending: newTrendings, resultCode: getResultCode } =
+      await getNamuTrending();
+
+    if (getResultCode === 200) {
+      console.log(`Current namu trendings are...\n`);
+      console.log(`[ ${newTrendings.join(", ")} ]`);
+    } else {
+      console.error(
+        `Caught error during crawling namu trending - ${getResultCode}`
+      );
+      return;
+    }
+
+    console.log(`\n2. Saving namu trendings to soup-server ${SOUP_API}\n`);
+
+    const { resultCode: saveResultCode } = await saveNamuTrending(newTrendings);
+
+    if (saveResultCode === 201) {
+      console.log(`Successfully saved trendings`);
+    } else {
+      console.error(
+        `Caught error during saving namu trendings - ${saveResultCode}`
+      );
+      return;
+    }
+
+    console.log(`\n3. Checking saved soup trendings from ${SOUP_API}\n`);
+
+    const {
+      savedDate,
+      savedTrending,
+      resultCode: getSavedResultCode,
+    } = await getSavedTrending();
+
+    if (getSavedResultCode === 200) {
+      console.log(`Current soup trendings are...\n`);
+      console.log(
+        `[ ${savedTrending
+          .map((t: { keyword: string }) => t.keyword)
+          .join(", ")} ]`
+      );
+      console.log(`--- ${savedDate}`);
+    } else {
+      console.error(`Caught error during checking saved soup trendings`);
+    }
+  } catch (e) {
+    console.error(`Caught error during crawling namu trending:`);
+    console.error(e);
+
+    console.log(`\nSoup-yojeong failed >:<`);
+  }
+}
+
+if (import.meta.main) {
+  await operationSoupYojeong();
 }
