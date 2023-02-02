@@ -1,5 +1,9 @@
+import { dotEnvConfig } from "./deps/default.ts";
+
 const NAMU_API = "https://search.namu.wiki/api/ranking";
 const SOUP_API = "http://localhost:8080/api";
+
+dotEnvConfig({ export: true });
 
 export async function getNamuTrending(): Promise<{
   namuTrending: Array<string>;
