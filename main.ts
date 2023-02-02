@@ -1,7 +1,3 @@
-import { dotEnvConfig } from "./deps/default.ts";
-
-dotEnvConfig({ export: true });
-
 const NAMU_API = "https://search.namu.wiki/api/ranking";
 const SOUP_API = "http://localhost:8080/api";
 
@@ -116,7 +112,10 @@ export async function operationSoupYojeong() {
       console.log(`--- ${savedDate}`);
     } else {
       console.error(`Caught error during checking saved soup trendings`);
+      return;
     }
+
+    return newTrendings;
   } catch (e) {
     console.error(`Caught error during crawling namu trending:`);
     console.error(e);
