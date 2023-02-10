@@ -1,9 +1,10 @@
 import { dotEnvConfig } from "./deps/default.ts";
 
-const NAMU_API = "https://search.namu.wiki/api/ranking";
-const SOUP_API = "http://localhost:8080/api";
-
 dotEnvConfig({ export: true });
+
+const NAMU_API = Deno.env.get("NAMU_API") || "https://namu.wiki";
+
+const SOUP_API = Deno.env.get("SOUP_API") || "http://localhost:8080/api";
 
 export async function getNamuTrending(): Promise<{
   namuTrending: Array<string>;
