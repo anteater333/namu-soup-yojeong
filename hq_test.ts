@@ -3,7 +3,7 @@ import {
   launchSoupYojeongService,
   orderSoupYojeong,
   resetCooldown,
-  shutdonwSoupYojeongService,
+  shutdownSoupYojeongService,
 } from "./hq.ts";
 import {
   assertEquals,
@@ -73,7 +73,7 @@ Deno.test(async function 숲요정_서비스를_등록하면_timeout_id가_확�
 
   assertNotEquals(secondTimeoutId, undefined);
 
-  shutdonwSoupYojeongService();
+  shutdownSoupYojeongService();
 });
 
 Deno.test(async function 숲요정_서비스를_등록하면_서버에_실검이_저장된다() {
@@ -86,5 +86,5 @@ Deno.test(async function 숲요정_서비스를_등록하면_서버에_실검이
   assertInstanceOf(savedRanking, Array);
   assertNotEquals(savedRanking[0], undefined);
 
-  shutdonwSoupYojeongService();
+  shutdownSoupYojeongService();
 });

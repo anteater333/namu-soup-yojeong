@@ -46,7 +46,7 @@ export function launchSoupYojeongService() {
   setNextParse(0);
 }
 
-export function shutdonwSoupYojeongService() {
+export function shutdownSoupYojeongService() {
   clearTimeout(yojeongTimeoutID);
 }
 
